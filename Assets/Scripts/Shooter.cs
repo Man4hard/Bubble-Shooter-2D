@@ -134,6 +134,8 @@ public class Shooter : MonoBehaviour
 
 	public void SwapBubbles()
 	{
+		if (currentBubble == null || nextBubble == null) return;
+		
 		List<GameObject> bubblesInScene = LevelManager.instance.bubblesInScene;
 		if (bubblesInScene.Count < 1) return;
 

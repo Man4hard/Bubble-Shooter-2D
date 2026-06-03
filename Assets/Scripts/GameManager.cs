@@ -54,20 +54,17 @@ public class GameManager : MonoBehaviour
 	{
 		if (isDissolving)
 		{
+			bubblesToDissolve.RemoveAll(item => item == null);
+			if (bubblesToDissolve.Count == 0)
+			{
+				isDissolving = false;
+				return;
+			}
+			
 			foreach (Transform bubble in bubblesToDissolve)
 			{
 
-				if (bubble == null)
-				{
-					//make sure every bubble disappeared before ending the dissolve
-					if (bubblesToDissolve.IndexOf(bubble) == bubblesToDissolve.Count - 1)
-					{
-						isDissolving = false;
-						EmptyDissolveList();
-						break;
-					}
-					else continue;
-				}
+				if (bubble == null) continue;
 
 				SpriteRenderer spriteRenderer = bubble.GetComponent<SpriteRenderer>();
 				float dissolveAmount = spriteRenderer.material.GetFloat("_DissolveAmount");
@@ -244,16 +241,26 @@ public class GameManager : MonoBehaviour
 				Destroy(explosion, 0.5f);
 
 				//destroy the bomb
-				Destroy(t.gameObject);
-
 				//destroy the neighbours of bomb
 				foreach (Transform t2 in bScript.GetNeighbours())
 				{
-					if (sequenceBubbles.Contains(t2))
-						sequenceBubbles.Remove(t2);
-
-					Destroy(t2.gameObject);
+					if (t2 != null && t2.tag.Equals("Bubble"))
+					{
+						if (sequenceBubbles.Contains(t2))
+							sequenceBubbles.Remove(t2);
+							
+						t2.tag = "Untagged";
+						t2.GetComponent<CircleCollider2D>().enabled = false;
+						t2.SetParent(null);
+						Destroy(t2.gameObject);
+					}
 				}
+
+				//destroy the bomb
+				t.tag = "Untagged";
+				t.GetComponent<CircleCollider2D>().enabled = false;
+				t.SetParent(null);
+				Destroy(t.gameObject);
 
 				ScoreManager.GetInstance().AddScore(10);
 			}
@@ -304,7 +311,9 @@ public class GameManager : MonoBehaviour
 	{
 		connectedBubbles.Clear();
 
-		RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, Vector2.right, RayDistance);
+		GameObject topObj = GameObject.Find("Top");
+		Vector3 rayOrigin = topObj != null ? topObj.transform.position : transform.position;
+		RaycastHit2D[] hits = Physics2D.RaycastAll(rayOrigin, Vector2.right, RayDistance);
 
 		for (int i = 0; i < hits.Length; i++)
 		{

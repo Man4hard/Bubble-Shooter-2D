@@ -18,10 +18,20 @@ public class ScoreManager
 		return instance;
 	}
 
+	private Text _scoreText;
+
 	public void UpdateScoreUI()
 	{
-		Text _score = GameObject.FindWithTag("Score").GetComponent<Text>();
-		_score.text = $"Score: {score} | Balls: {remainingBalls}";
+		if (_scoreText == null) 
+		{
+			GameObject uiObj = GameObject.FindWithTag("Score");
+			if (uiObj != null) _scoreText = uiObj.GetComponent<Text>();
+		}
+		
+		if (_scoreText != null)
+		{
+			_scoreText.text = $"Score: {score} | Balls: {remainingBalls}";
+		}
 	}
 
 	public void AddScore(int score)

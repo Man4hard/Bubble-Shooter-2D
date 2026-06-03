@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
@@ -47,7 +47,7 @@ public class LevelManager : MonoBehaviour
 	public void StartNewGame()
 	{
 		GameManager.instance.startUI.SetActive(false);
-		GameManager.instance.levelsUI.SetActive(true);
+		StartLevel(0);
 	}
 
 	System.Collections.IEnumerator LoadLevel(int level)
@@ -55,22 +55,49 @@ public class LevelManager : MonoBehaviour
 		yield return new WaitForSeconds(0.1f);
 
 		ScoreManager.GetInstance().Reset();
-		GameObject levelToLoad = Instantiate(levels[level]);
-		FillWithBubbles(levelToLoad, bubblesPrefabs);
+		GenerateProceduralLevel(level);
 
-		SnapChildrensToGrid(bubblesArea);
 		InsertSpecialBubbles();
 		UpdateListOfBubblesInScene();
 
 		GameManager.instance.shootScript.CreateNewBubbles();
 	}
 
+	private void GenerateProceduralLevel(int level)
+	{
+		GameObject topObj = GameObject.Find("Top");
+		int topY = topObj != null ? grid.WorldToCell(topObj.transform.position).y : 5;
+		
+		int rows = Mathf.Min(5 + (level / 5), 15);
+		int cols = 11;
+		
+		for (int y = 0; y < rows; y++)
+		{
+			int currentY = topY - 1 - y;
+			int currentCols = (y % 2 == 0) ? cols : cols - 1;
+			int startX = -currentCols / 2;
+			
+			for (int x = 0; x < currentCols; x++)
+			{
+				Vector3 spawnPos = grid.GetCellCenterWorld(new Vector3Int(startX + x, currentY, 0));
+				GameObject bubblePrefab = bubblesPrefabs[Random.Range(0, bubblesPrefabs.Count)];
+				GameObject bubble = Instantiate(bubblePrefab, bubblesArea);
+				bubble.transform.position = spawnPos;
+				
+				Bubble bScript = bubble.GetComponent<Bubble>();
+				if (bScript != null) {
+					bScript.isFixed = true;
+					bScript.isConnected = true;
+				}
+				
+				SnapToNearestGripPosition(bubble.transform);
+			}
+		}
+	}
+
 	public void StartLevel(int level)
 	{
 		GameManager.instance.levelsUI.SetActive(false);
-		if (level >= levels.Count)
-			level = 0;
-
 		currentLevel = level;
 		levelText.GetComponent<UnityEngine.UI.Text>().text = "Level " + (level + 1);
 		StartCoroutine(LoadLevel(level));
@@ -123,16 +150,7 @@ public class LevelManager : MonoBehaviour
 	}
 	#endregion
 
-	private void FillWithBubbles(GameObject go, List<GameObject> _prefabs)
-	{
-		foreach (Transform t in go.transform)
-		{
-			var bubble = Instantiate(_prefabs[Random.Range(0, _prefabs.Count)], bubblesArea);
-			bubble.transform.position = t.position;
-		}
 
-		Destroy(go);
-	}
 
 	public void UpdateListOfBubblesInScene()
 	{

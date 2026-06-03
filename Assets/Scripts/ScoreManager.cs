@@ -7,6 +7,7 @@ public class ScoreManager
 {
 	private int score = 0;
 	private int throws = 0;
+	private int remainingBalls = 50;
 	public static ScoreManager instance;
 
 	public static ScoreManager GetInstance()
@@ -20,7 +21,7 @@ public class ScoreManager
 	public void UpdateScoreUI()
 	{
 		Text _score = GameObject.FindWithTag("Score").GetComponent<Text>();
-		_score.text = $"Score: {score}";
+		_score.text = $"Score: {score} | Balls: {remainingBalls}";
 	}
 
 	public void AddScore(int score)
@@ -44,10 +45,28 @@ public class ScoreManager
 		return throws;
 	}
 
+	public int GetRemainingBalls()
+	{
+		return remainingBalls;
+	}
+
+	public void DecreaseBalls()
+	{
+		remainingBalls--;
+		UpdateScoreUI();
+	}
+
+	public void AddBalls(int amount)
+	{
+		remainingBalls += amount;
+		UpdateScoreUI();
+	}
+
 	public void Reset()
 	{
 		score = 0;
 		throws = 0;
+		remainingBalls = 50;
 		UpdateScoreUI();
 	}
 }

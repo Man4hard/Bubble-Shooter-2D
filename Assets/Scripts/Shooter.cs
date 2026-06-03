@@ -120,6 +120,7 @@ public class Shooter : MonoBehaviour
 	{
 		if (currentBubble == null) CreateNextBubble();
 		ScoreManager.GetInstance().AddThrows();
+		ScoreManager.GetInstance().DecreaseBalls();
 		AudioManager.instance.PlaySound("shoot");
 		transform.rotation = Quaternion.Euler(0f, 0f, lookAngle - 90f);
 		currentBubble.transform.rotation = transform.rotation;

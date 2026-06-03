@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -170,6 +170,10 @@ public class GameManager : MonoBehaviour
 			winScore.GetComponent<Text>().text = man.GetScore().ToString();
 			winThrows.GetComponent<Text>().text = man.GetThrows().ToString();
 			WinMenu.SetActive(true);
+		}
+		else if (ScoreManager.GetInstance().GetRemainingBalls() <= 0)
+		{
+			ShowAdMenu();
 		}
 		else
 		{
@@ -359,6 +363,58 @@ public class GameManager : MonoBehaviour
 	}
 
 	#endregion
+	
+	public bool showAdMenu = false;
+
+	public void ShowAdMenu()
+	{
+		showAdMenu = true;
+		gameState = "pause";
+		PauseGame();
+	}
+
+	private void OnGUI()
+	{
+		if (showAdMenu)
+		{
+			GUI.ModalWindow(0, new Rect(Screen.width / 2 - 150, Screen.height / 2 - 100, 300, 200), AdWindow, "Out of Balls!");
+		}
+	}
+
+	private void AdWindow(int windowID)
+	{
+		GUIStyle style = new GUIStyle(GUI.skin.label);
+		style.alignment = TextAnchor.MiddleCenter;
+		style.fontSize = 18;
+		
+		GUI.Label(new Rect(10, 30, 280, 50), "You have run out of balls!\nWatch an ad to get 5 more?", style);
+
+		if (GUI.Button(new Rect(50, 90, 200, 40), "Watch Ad (+5 Balls)"))
+		{
+			StartCoroutine(MockWatchAd());
+		}
+
+		if (GUI.Button(new Rect(50, 140, 200, 40), "Restart Level"))
+		{
+			showAdMenu = false;
+			ResumeGame();
+			RestartGame();
+		}
+	}
+
+	IEnumerator MockWatchAd()
+	{
+		showAdMenu = false;
+		yield return new WaitForSecondsRealtime(2f);
+
+		ScoreManager.GetInstance().AddBalls(5);
+		shootScript.CreateNextBubble();
+		shootScript.canShoot = true;
+		
+		gameState = "play";
+		ResumeGame();
+	}
+
 	public void OnDrawGizmosSelected()
 	{
 		Gizmos.color = Color.red;

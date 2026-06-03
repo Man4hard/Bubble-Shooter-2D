@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Shooter : MonoBehaviour
@@ -22,7 +22,10 @@ public class Shooter : MonoBehaviour
 	{
 		line = GameObject.FindGameObjectWithTag("Line");
 		limit = GameObject.FindGameObjectWithTag("Limit");
-		//lineRenderer = line.GetComponent<LineRenderer>();
+		lineRenderer = line.GetComponent<LineRenderer>();
+		lineRenderer.enabled = true;
+		SpriteRenderer sr = line.GetComponent<SpriteRenderer>();
+		if(sr != null) sr.enabled = false;
 	}
 
 	public void Update()
@@ -46,7 +49,7 @@ public class Shooter : MonoBehaviour
 					line.SetActive(true);
 
 					//cast a ray between transform position and mouse position
-					//CastRay(transform.position, gizmosPoint);
+					CastRay(transform.position, lookDirection.normalized);
 				}
 			}
 			else
@@ -65,36 +68,53 @@ public class Shooter : MonoBehaviour
 		}
 	}
 
-	// private void CastRay(Vector2 pos, Vector2 dir)
-	// {
-	// 	int RayCount = 2;
-	// 	lineRenderer.positionCount = RayCount;
+	private void CastRay(Vector2 pos, Vector2 dir)
+	{
+		int maxBounces = 4;
+		lineRenderer.positionCount = 1;
+		lineRenderer.SetPosition(0, pos);
 
-	// 	lineRenderer.SetPosition(0, pos);
+		int currentPoints = 1;
 
-	// 	for (int i = 1; i < RayCount; i++)
-	// 	{
-	// 		RaycastHit2D hit = Physics2D.Raycast(pos, dir - (Vector2)transform.position, 300);
+		for (int i = 0; i < maxBounces; i++)
+		{
+			RaycastHit2D hit = Physics2D.Raycast(pos, dir, 300f);
 
-	// 		if (hit.collider != null && hit.transform.tag.Equals("Wall"))
-	// 		{
-	// 			lineRenderer.SetPosition(i, hit.point);
+			if (hit.collider != null)
+			{
+				if (hit.collider.CompareTag("Wall"))
+				{
+					currentPoints++;
+					lineRenderer.positionCount = currentPoints;
+					lineRenderer.SetPosition(currentPoints - 1, hit.point);
 
-	// 			pos = hit.point - dir * 0.01f;
-	// 			dir = Vector3.Reflect(dir, hit.normal);
-
-	// 			if (RayCount < 5)
-	// 			{
-	// 				RayCount += 1;
-	// 				lineRenderer.positionCount = RayCount;}
-	// 		}
-	// 		else if (hit.collider != null && hit.transform.tag.Equals("Bubble"))
-	// 		{
-	// 			lineRenderer.SetPosition(i, hit.point);
-	// 			break;
-	// 		}
-	// 	}
-	// }
+					pos = hit.point + hit.normal * 0.01f;
+					dir = Vector2.Reflect(dir, hit.normal);
+				}
+				else if (hit.collider.CompareTag("Bubble") || hit.collider.CompareTag("Limit"))
+				{
+					currentPoints++;
+					lineRenderer.positionCount = currentPoints;
+					lineRenderer.SetPosition(currentPoints - 1, hit.point);
+					break;
+				}
+				else
+				{
+					currentPoints++;
+					lineRenderer.positionCount = currentPoints;
+					lineRenderer.SetPosition(currentPoints - 1, hit.point);
+					break;
+				}
+			}
+			else
+			{
+				currentPoints++;
+				lineRenderer.positionCount = currentPoints;
+				lineRenderer.SetPosition(currentPoints - 1, pos + dir * 300f);
+				break;
+			}
+		}
+	}
 
 	public void Shoot()
 	{

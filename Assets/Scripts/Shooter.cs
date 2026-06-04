@@ -17,13 +17,14 @@ public class Shooter : MonoBehaviour
 	private GameObject limit;
 	private LineRenderer lineRenderer;
 	private Vector2 gizmosPoint;
+	private List<GameObject> dots = new List<GameObject>();
 
 	public void Awake()
 	{
 		line = GameObject.FindGameObjectWithTag("Line");
 		limit = GameObject.FindGameObjectWithTag("Limit");
 		lineRenderer = line.GetComponent<LineRenderer>();
-		lineRenderer.enabled = true;
+		lineRenderer.enabled = false;
 		SpriteRenderer sr = line.GetComponent<SpriteRenderer>();
 		if(sr != null) sr.enabled = false;
 	}
@@ -55,6 +56,7 @@ public class Shooter : MonoBehaviour
 			else
 			{
 				line.SetActive(false);
+				foreach(var dot in dots) if(dot!=null) dot.SetActive(false);
 			}
 
 			if (canShoot
@@ -64,6 +66,7 @@ public class Shooter : MonoBehaviour
 			{
 				canShoot = false;
 				Shoot();
+				foreach(var dot in dots) if(dot!=null) dot.SetActive(false);
 			}
 		}
 	}
@@ -71,46 +74,57 @@ public class Shooter : MonoBehaviour
 	private void CastRay(Vector2 pos, Vector2 dir)
 	{
 		int maxBounces = 4;
-		lineRenderer.positionCount = 1;
-		lineRenderer.SetPosition(0, pos);
-
-		int currentPoints = 1;
+		
+		foreach(var dot in dots) {
+			if (dot != null) dot.SetActive(false);
+		}
+		
+		int dotIndex = 0;
 
 		for (int i = 0; i < maxBounces; i++)
 		{
 			RaycastHit2D hit = Physics2D.Raycast(pos, dir, 300f);
+			
+			Vector2 targetPoint = hit.collider != null ? hit.point : pos + dir * 300f;
+			float dist = Vector2.Distance(pos, targetPoint);
+			Vector2 stepDir = (targetPoint - pos).normalized;
+			
+			// Spawn dots every 0.8 units
+			for (float d = 0.5f; d < dist; d += 0.8f)
+			{
+				Vector2 dotPos = pos + stepDir * d;
+				
+				if (dotIndex >= dots.Count)
+				{
+					GameObject newDot = Instantiate(LevelManager.instance.bubblesPrefabs[0]);
+					Destroy(newDot.GetComponent<Bubble>());
+					Destroy(newDot.GetComponent<CircleCollider2D>());
+					newDot.transform.localScale = new Vector3(8f, 8f, 1f);
+					SpriteRenderer sr = newDot.GetComponent<SpriteRenderer>();
+					sr.color = new Color(1f, 1f, 1f, 0.6f);
+					sr.sortingOrder = 10;
+					dots.Add(newDot);
+				}
+				
+				dots[dotIndex].transform.position = dotPos;
+				dots[dotIndex].SetActive(true);
+				dotIndex++;
+			}
 
 			if (hit.collider != null)
 			{
 				if (hit.collider.CompareTag("Wall"))
 				{
-					currentPoints++;
-					lineRenderer.positionCount = currentPoints;
-					lineRenderer.SetPosition(currentPoints - 1, hit.point);
-
 					pos = hit.point + hit.normal * 0.01f;
 					dir = Vector2.Reflect(dir, hit.normal);
 				}
 				else if (hit.collider.CompareTag("Bubble") || hit.collider.CompareTag("Limit"))
 				{
-					currentPoints++;
-					lineRenderer.positionCount = currentPoints;
-					lineRenderer.SetPosition(currentPoints - 1, hit.point);
-					break;
-				}
-				else
-				{
-					currentPoints++;
-					lineRenderer.positionCount = currentPoints;
-					lineRenderer.SetPosition(currentPoints - 1, hit.point);
 					break;
 				}
 			}
 			else
 			{
-				currentPoints++;
-				lineRenderer.positionCount = currentPoints;
-				lineRenderer.SetPosition(currentPoints - 1, pos + dir * 300f);
 				break;
 			}
 		}

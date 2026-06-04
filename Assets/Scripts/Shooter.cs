@@ -17,7 +17,7 @@ public class Shooter : MonoBehaviour
 	private GameObject limit;
 	private LineRenderer lineRenderer;
 	private Vector2 gizmosPoint;
-	private List<GameObject> dots = new List<GameObject>();
+	private List<GameObject> dots = new();
 
 	public void Awake()
 	{
@@ -26,7 +26,7 @@ public class Shooter : MonoBehaviour
 		lineRenderer = line.GetComponent<LineRenderer>();
 		lineRenderer.enabled = false;
 		SpriteRenderer sr = line.GetComponent<SpriteRenderer>();
-		if(sr != null) sr.enabled = false;
+		if(sr is not null) sr.enabled = false;
 	}
 
 	public void Update()
@@ -44,7 +44,7 @@ public class Shooter : MonoBehaviour
 				line.transform.position = transform.position;
 				line.transform.rotation = Quaternion.Euler(0f, 0f, lookAngle - 90);
 
-				if (LevelManager.instance != null
+				if (LevelManager.instance is not null
 				&& LevelManager.instance.GetBubbleAreaChildCount() > 0)
 				{
 					line.SetActive(true);
@@ -76,7 +76,7 @@ public class Shooter : MonoBehaviour
 		int maxBounces = 4;
 		
 		foreach(var dot in dots) {
-			if (dot != null) dot.SetActive(false);
+			if (dot is not null) dot.SetActive(false);
 		}
 		
 		int dotIndex = 0;
@@ -85,7 +85,7 @@ public class Shooter : MonoBehaviour
 		{
 			RaycastHit2D hit = Physics2D.Raycast(pos, dir, 300f);
 			
-			Vector2 targetPoint = hit.collider != null ? hit.point : pos + dir * 300f;
+			Vector2 targetPoint = hit.collider is not null ? hit.point : pos + dir * 300f;
 			float dist = Vector2.Distance(pos, targetPoint);
 			Vector2 stepDir = (targetPoint - pos).normalized;
 			
@@ -111,7 +111,7 @@ public class Shooter : MonoBehaviour
 				dotIndex++;
 			}
 
-			if (hit.collider != null)
+			if (hit.collider is not null)
 			{
 				if (hit.collider.CompareTag("Wall"))
 				{
@@ -132,7 +132,7 @@ public class Shooter : MonoBehaviour
 
 	public void Shoot()
 	{
-		if (currentBubble == null) CreateNextBubble();
+		if (currentBubble is null) CreateNextBubble();
 		ScoreManager.GetInstance().AddThrows();
 		ScoreManager.GetInstance().DecreaseBalls();
 		AudioManager.instance.PlaySound("shoot");
@@ -148,7 +148,7 @@ public class Shooter : MonoBehaviour
 
 	public void SwapBubbles()
 	{
-		if (currentBubble == null || nextBubble == null) return;
+		if (currentBubble is null || nextBubble is null) return;
 		
 		List<GameObject> bubblesInScene = LevelManager.instance.bubblesInScene;
 		if (bubblesInScene.Count < 1) return;
@@ -162,10 +162,10 @@ public class Shooter : MonoBehaviour
 
 	public void CreateNewBubbles()
 	{
-		if (nextBubble != null)
+		if (nextBubble is not null)
 			Destroy(nextBubble);
 
-		if (currentBubble != null)
+		if (currentBubble is not null)
 			Destroy(currentBubble);
 
 		nextBubble = null;
@@ -181,7 +181,7 @@ public class Shooter : MonoBehaviour
 
 		if (bubblesInScene.Count < 1) return;
 
-		if (nextBubble == null)
+		if (nextBubble is null)
 		{
 			nextBubble = InstantiateNewBubble(bubblesInScene);
 		}
@@ -194,7 +194,7 @@ public class Shooter : MonoBehaviour
 			// }
 		}
 
-		if (currentBubble == null)
+		if (currentBubble is null)
 		{
 			currentBubble = nextBubble;
 			currentBubble.transform.position = transform.position;

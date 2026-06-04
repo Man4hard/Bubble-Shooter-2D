@@ -33,7 +33,7 @@ public class Bubble : MonoBehaviour
 	public List<Transform> GetNeighbours()
 	{
 		List<RaycastHit2D> hits = new List<RaycastHit2D>();
-		List<Transform> neighbours = new List<Transform>();
+		List<Transform> neighbours = new();
 
 		hits.Add(Physics2D.Raycast(new Vector2(transform.position.x - raycastOffset, transform.position.y), Vector3.left, raycastRange));
 		hits.Add(Physics2D.Raycast(new Vector2(transform.position.x + raycastOffset, transform.position.y), Vector3.right, raycastRange));
@@ -44,7 +44,7 @@ public class Bubble : MonoBehaviour
 
 		foreach (RaycastHit2D hit in hits)
 		{
-			if (hit.collider != null && hit.transform.tag.Equals("Bubble"))
+			if (hit.collider is not null && hit.transform.tag.Equals("Bubble"))
 			{
 				neighbours.Add(hit.transform);
 			}

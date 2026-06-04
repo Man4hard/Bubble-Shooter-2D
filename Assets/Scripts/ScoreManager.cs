@@ -19,6 +19,8 @@ public class ScoreManager
 	}
 
 	private Text _scoreText;
+	private static GameObject ballCounterObj;
+	private static TextMesh ballCounterText;
 
 	public void UpdateScoreUI()
 	{
@@ -32,7 +34,56 @@ public class ScoreManager
 		{
 			_scoreText.horizontalOverflow = HorizontalWrapMode.Overflow;
 			_scoreText.verticalOverflow = VerticalWrapMode.Overflow;
-			_scoreText.text = $"Score: {score} | Balls: {remainingBalls}";
+			_scoreText.text = $"Score: {score}";
+		}
+		
+		UpdateBallCounterUI();
+	}
+
+	private void UpdateBallCounterUI()
+	{
+		if (ballCounterObj == null)
+		{
+			if (LevelManager.instance == null || LevelManager.instance.bubblesPrefabs == null || LevelManager.instance.bubblesPrefabs.Count == 0) return;
+			
+			ballCounterObj = new GameObject("BallCounterIcon");
+			
+			// Add SpriteRenderer to make it a ball
+			SpriteRenderer sr = ballCounterObj.AddComponent<SpriteRenderer>();
+			sr.sprite = LevelManager.instance.bubblesPrefabs[0].GetComponent<SpriteRenderer>().sprite;
+			sr.sortingOrder = 20;
+			
+			// Position it near bottom-left.
+			if (Camera.main != null) 
+			{
+				Vector3 bottomLeft = Camera.main.ViewportToWorldPoint(new Vector3(0.1f, 0.1f, 10f));
+				ballCounterObj.transform.position = new Vector3(bottomLeft.x, bottomLeft.y, 0);
+			}
+			ballCounterObj.transform.localScale = new Vector3(28f, 28f, 1f);
+			
+			// Add TextMesh child
+			GameObject textObj = new GameObject("Text");
+			textObj.transform.SetParent(ballCounterObj.transform);
+			textObj.transform.localPosition = new Vector3(0, 0, -1);
+			textObj.transform.localScale = new Vector3(0.015f, 0.015f, 1f);
+			
+			ballCounterText = textObj.AddComponent<TextMesh>();
+			ballCounterText.characterSize = 1f;
+			ballCounterText.fontSize = 100;
+			ballCounterText.anchor = TextAnchor.MiddleCenter;
+			ballCounterText.alignment = TextAlignment.Center;
+			ballCounterText.color = Color.white;
+			
+			Font font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+			if (font != null) {
+				ballCounterText.font = font;
+				textObj.GetComponent<MeshRenderer>().material = font.material;
+			}
+		}
+		
+		if (ballCounterText != null)
+		{
+			ballCounterText.text = remainingBalls.ToString();
 		}
 	}
 

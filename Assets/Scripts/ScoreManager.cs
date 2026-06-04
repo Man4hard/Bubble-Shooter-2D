@@ -30,6 +30,8 @@ public class ScoreManager
 		
 		if (_scoreText != null)
 		{
+			_scoreText.horizontalOverflow = HorizontalWrapMode.Overflow;
+			_scoreText.verticalOverflow = VerticalWrapMode.Overflow;
 			_scoreText.text = $"Score: {score} | Balls: {remainingBalls}";
 		}
 	}

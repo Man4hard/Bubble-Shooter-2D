@@ -23,7 +23,7 @@ public class AudioManager : MonoBehaviour
 
 	public void Awake()
 	{
-		if (instance is null)
+		if (instance == null)
 		{
 			instance = this;
 		}

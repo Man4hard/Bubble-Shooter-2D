@@ -12,7 +12,7 @@ public class ScoreManager
 
 	public static ScoreManager GetInstance()
 	{
-		if (instance is null)
+		if (instance == null)
 			instance = new ScoreManager();
 
 		return instance;
@@ -24,13 +24,13 @@ public class ScoreManager
 
 	public void UpdateScoreUI()
 	{
-		if (_scoreText is null) 
+		if (_scoreText == null) 
 		{
 			GameObject uiObj = GameObject.FindWithTag("Score");
-			if (uiObj is not null) _scoreText = uiObj.GetComponent<Text>();
+			if (uiObj != null) _scoreText = uiObj.GetComponent<Text>();
 		}
 		
-		if (_scoreText is not null)
+		if (_scoreText != null)
 		{
 			_scoreText.horizontalOverflow = HorizontalWrapMode.Overflow;
 			_scoreText.verticalOverflow = VerticalWrapMode.Overflow;
@@ -42,9 +42,9 @@ public class ScoreManager
 
 	private void UpdateBallCounterUI()
 	{
-		if (ballCounterObj is null)
+		if (ballCounterObj == null)
 		{
-			if (LevelManager.instance is null || LevelManager.instance.bubblesPrefabs is null || LevelManager.instance.bubblesPrefabs.Count == 0) return;
+			if (LevelManager.instance == null || LevelManager.instance.bubblesPrefabs == null || LevelManager.instance.bubblesPrefabs.Count == 0) return;
 			
 			ballCounterObj = new GameObject("BallCounterIcon");
 			
@@ -54,7 +54,7 @@ public class ScoreManager
 			sr.sortingOrder = 20;
 			
 			// Position it near bottom-left.
-			if (Camera.main is not null) 
+			if (Camera.main != null) 
 			{
 				Vector3 bottomLeft = Camera.main.ViewportToWorldPoint(new Vector3(0.1f, 0.1f, 10f));
 				ballCounterObj.transform.position = new Vector3(bottomLeft.x, bottomLeft.y, 0);
@@ -75,13 +75,13 @@ public class ScoreManager
 			ballCounterText.color = Color.white;
 			
 			Font font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-			if (font is not null) {
+			if (font != null) {
 				ballCounterText.font = font;
 				textObj.GetComponent<MeshRenderer>().material = font.material;
 			}
 		}
 		
-		if (ballCounterText is not null)
+		if (ballCounterText != null)
 		{
 			ballCounterText.text = remainingBalls.ToString();
 		}

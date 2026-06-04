@@ -9,7 +9,7 @@ public class LevelManager : MonoBehaviour
 
 	private void Awake()
 	{
-		if (instance is null)
+		if (instance == null)
 		{
 			instance = this;
 		}
@@ -66,7 +66,7 @@ public class LevelManager : MonoBehaviour
 	private void GenerateProceduralLevel(int level)
 	{
 		GameObject topObj = GameObject.Find("Top");
-		int topY = topObj is not null ? grid.WorldToCell(topObj.transform.position).y : 5;
+		int topY = topObj != null ? grid.WorldToCell(topObj.transform.position).y : 5;
 		
 		int rows = Mathf.Min(5 + (level / 5), 15);
 		int cols = 11;
@@ -85,7 +85,7 @@ public class LevelManager : MonoBehaviour
 				bubble.transform.position = spawnPos;
 				
 				Bubble bScript = bubble.GetComponent<Bubble>();
-				if (bScript is not null) {
+				if (bScript != null) {
 					bScript.isFixed = true;
 					bScript.isConnected = true;
 				}
@@ -106,7 +106,7 @@ public class LevelManager : MonoBehaviour
 	public void InsertSpecialBubbles()
 	{
 		int specialCount = Random.Range(1, 6);
-		List<Transform> specials = new();
+		List<Transform> specials = new List<Transform>();
 		for (int i = 0; i < specialCount; i++)
 		{
 			int randomBubble = Random.Range(0, bubblesArea.childCount);
@@ -155,7 +155,7 @@ public class LevelManager : MonoBehaviour
 	public void UpdateListOfBubblesInScene()
 	{
 		List<string> colors = new List<string>();
-		List<GameObject> newListOfBubbles = new();
+		List<GameObject> newListOfBubbles = new List<GameObject>();
 
 		foreach (Transform t in bubblesArea)
 		{

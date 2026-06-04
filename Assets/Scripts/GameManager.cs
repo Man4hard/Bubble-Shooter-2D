@@ -10,16 +10,16 @@ public class GameManager : MonoBehaviour
 
 	private void Awake()
 	{
-		if (instance is null)
+		if (instance == null)
 			instance = this;
 
 		WinMenu.SetActive(false);
 		LoseMenu.SetActive(false);
 		levelsUI.SetActive(false);
-		sequenceBubbles = new();
-		connectedBubbles = new();
-		bubblesToDrop = new();
-		bubblesToDissolve = new();
+		sequenceBubbles = new List<Transform>();
+		connectedBubbles = new List<Transform>();
+		bubblesToDrop = new List<Transform>();
+		bubblesToDissolve = new List<Transform>();
 		DontDestroyOnLoad(gameObject);
 	}
 	#endregion
@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
 	{
 		if (isDissolving)
 		{
-			bubblesToDissolve.RemoveAll(item => item is null);
+			bubblesToDissolve.RemoveAll(item => item == null);
 			if (bubblesToDissolve.Count == 0)
 			{
 				isDissolving = false;
@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
 			foreach (Transform bubble in bubblesToDissolve)
 			{
 
-				if (bubble is null) continue;
+				if (bubble == null) continue;
 
 				SpriteRenderer spriteRenderer = bubble.GetComponent<SpriteRenderer>();
 				float dissolveAmount = spriteRenderer.material.GetFloat("_DissolveAmount");
@@ -87,7 +87,7 @@ public class GameManager : MonoBehaviour
 	private void EmptyDissolveList()
 	{
 		foreach (Transform bubble in bubblesToDissolve)
-			if (bubble is not null) Destroy(bubble.gameObject);
+			if (bubble != null) Destroy(bubble.gameObject);
 
 		bubblesToDissolve.Clear();
 	}
@@ -244,7 +244,7 @@ public class GameManager : MonoBehaviour
 				//destroy the neighbours of bomb
 				foreach (Transform t2 in bScript.GetNeighbours())
 				{
-					if (t2 is not null && t2.tag.Equals("Bubble"))
+					if (t2 != null && t2.tag.Equals("Bubble"))
 					{
 						if (sequenceBubbles.Contains(t2))
 							sequenceBubbles.Remove(t2);
@@ -314,7 +314,7 @@ public class GameManager : MonoBehaviour
 		GameObject topObj = GameObject.Find("Top");
 		Grid grid = LevelManager.instance.grid;
 		
-		int topY = topObj is not null ? grid.WorldToCell(topObj.transform.position).y : 5;
+		int topY = topObj != null ? grid.WorldToCell(topObj.transform.position).y : 5;
 		Vector3 rayOrigin = grid.GetCellCenterWorld(new Vector3Int(0, topY - 1, 0));
 		rayOrigin.x = -100f; // Start way to the left to hit all bubbles
 		

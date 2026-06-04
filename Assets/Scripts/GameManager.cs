@@ -312,7 +312,12 @@ public class GameManager : MonoBehaviour
 		connectedBubbles.Clear();
 
 		GameObject topObj = GameObject.Find("Top");
-		Vector3 rayOrigin = topObj != null ? topObj.transform.position : transform.position;
+		Grid grid = LevelManager.instance.grid;
+		
+		int topY = topObj != null ? grid.WorldToCell(topObj.transform.position).y : 5;
+		Vector3 rayOrigin = grid.GetCellCenterWorld(new Vector3Int(0, topY - 1, 0));
+		rayOrigin.x = -100f; // Start way to the left to hit all bubbles
+		
 		RaycastHit2D[] hits = Physics2D.RaycastAll(rayOrigin, Vector2.right, RayDistance);
 
 		for (int i = 0; i < hits.Length; i++)
